@@ -38,14 +38,47 @@ const storage = multer.diskStorage({
         cb(null, `${uuid()}-${originalname}`)
     },
 });
-//uuid-originalName
 
-const upload = multer({ storage });
+const fileFilter = (req, file, cb)=>{
+    if (file.mimetype.split("/")[0]=== "image") {
+    cb(null, true);
+ }else {
+    cb(new multer.MulterError("LIMIT_UNEXPECTED_FILE"), false);
+ }
+};
+
+const upload = multer({ 
+    storage, 
+    fileFilter,
+    limits:{fileSize: 1000000000, files:2}
+ });
 //const upload = multer({ dest: "uploads/"});
 app.post("/upload", upload.array("file"), (req,res)=>{
+    console.log(req.files);
     res.json({status: "success"});
  });
 
+app.use((error,req,res,next)=>{
+    if(error instanceof multer.MulterError){
+        if(error.code === "LIMIT_FILE_SIZE"){
+            return res.json({
+             message: "file is too large",
+            });
+        }
+      if (error.code === "LIMIT_FILE_COUNT"){
+        return res.json({
+            message: "file limit reached",
+           });
+      }
+      if (error.code === "LIMIT_UNEXPECTED_FILE"){
+        return res.json({
+            message: "file must be an image",
+           });
+    }
+}
+})
+
+ 
 app.listen(4000, ()=> 
     console.log("listening on port 4000")
 );

@@ -1,0 +1,5 @@
+data directory
+C:\Program Files\MongoDB\Server\7.0\bin\
+
+log directory
+C:\Program Files\MongoDB\Server\7.0\log\
